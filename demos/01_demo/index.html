@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>React - Template</title>
+    <link rel="stylesheet" href="../../css/main.css">
+    <script src="../../js/react.min.js"></script>
+    <script src="../../js/react-dom.min.js"></script>
+    <script src="../../js/browser.min.js"></script>
+</head>
+<body>
+
+<div id="container"></div>
+
+
+
+<script type="text/babel">
+
+    var DeviceList = React.createClass({
+
+
+        getInitialState: function () {
+            return {
+
+
+                "master":  {
+                    "name":   "Master",
+                    "image":  "images/router1.jpg",
+                    "status": "up",
+                    "ip":     "55.34.75.234",
+                    "speed":  "128/128"
+                },
+                "devices": [
+                    {
+                        "device": {
+                            "name":     "PLA1",
+                            "image":    "images/router2.jpg",
+                            "status":   "up",
+                            "ip":       "0.0.0.0",
+                            "speed":    "128/128",
+                            "children": [
+                                {
+                                    "device": {
+                                        "name":     "PLA2",
+                                        "image":    "images/router3.jpg",
+                                        "status":   "up",
+                                        "ip":       "10.46.34.156",
+                                        "speed":    "128/128",
+                                        "children": [
+                                            {
+                                                "device": {
+                                                    "name":   "PLA5",
+                                                    "image":  "images/router4.jpg",
+                                                    "status": "down",
+                                                    "ip":     "24.156.56.35",
+                                                    "speed":  "128/128"
+                                                }
+                                            },
+                                            {
+                                                "device": {
+                                                    "name":   "PLA6",
+                                                    "image":  "images/router5.jpeg",
+                                                    "status": "up",
+                                                    "ip":     "63.45.26.75",
+                                                    "speed":  "128/128"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "device": {
+                                        "name":   "PLA3",
+                                        "image":  "images/router6.jpg",
+                                        "status": "up",
+                                        "ip":     "55.33.65.34",
+                                        "speed":  "128/128"
+                                    }
+                                },
+                                {
+                                    "device": {
+                                        "name":     "PLA4",
+                                        "image":    "images/router1.jpg",
+                                        "status":   "up",
+                                        "ip":       "45.67.36.35",
+                                        "speed":    "128/128",
+                                        "children": [
+                                            {
+                                                "device": {
+                                                    "name":   "PLA7",
+                                                    "image":  "images/router1.jpg",
+                                                    "status": "up",
+                                                    "ip":     "66.33.73.42",
+                                                    "speed":  "128/128"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "device": {
+                            "name":   "PLA8",
+                            "image":  "images/router1.jpg",
+                            "status": "down",
+                            "ip":     "34.54.22.44",
+                            "speed":  "0/0"
+                        }
+                    }
+                ]
+            }
+
+
+        },
+
+        updateName: function () {
+            console.log('Updating master');
+
+//            var masterArr = this.state.master;
+//            masterArr['name'] = 'test';
+//            this.setState({master: masterArr});
+
+
+            var devicesArr = this.state.devices;
+            devicesArr[0].device.name = 'Small';
+            this.setState({devices: devicesArr});
+
+        },
+
+        dlMaster: function () {
+            return (
+                    <div className="DL__master hasChildren">
+                        <SingleDevice path="master.device" device={this.state.master} updateName={this.updateName} />
+                    </div>
+            )
+        },
+
+        dlDevices: function () {
+            return this.state.devices.map(this.dlRenderGroup);
+        },
+
+        dlRenderGroup: function (el, i) {
+            var hasChildren = '';
+            if (el.device.children) {
+                hasChildren = ' hasChildren';
+
+            }
+            return (
+                    <div className={"DL__group" + hasChildren}>
+                        <SingleDevice device={el.device} updateName={this.updateName}/>
+                        {this.dlLoopChildren(el.device.children)}
+                    </div>
+            )
+        },
+
+        dlLoopChildren: function (children) {
+            if (children) {
+                return children.map(this.dlRenderGroup);
+            }
+        },
+
+        render: function () {
+            return (
+                    <div className="DL__wrap">
+
+                        {this.dlMaster()}
+                        {this.dlDevices()}
+
+                    </div>
+            );
+        }
+    });
+
+
+    var SingleDevice = React.createClass({
+
+        getInitialState: function () {
+            return {
+                name:   "PLA",
+                image:  "images/router1.jpg",
+                status: "up",
+                ip:     "34.54.22.44",
+                speed:  "100/100"
+            }
+        },
+
+        dlSpeed: function (speed) {
+            if (speed) {
+                return (
+                        <div className="DL__single__speed">
+                            <div>Speed:</div>
+                            <div>{speed}</div>
+                        </div>
+                )
+            }
+        },
+
+        saveName: function () {
+
+            console.log('Save: ' + this.refs.refName.innerText);
+            this.props.updateName();
+        },
+
+        dlDeleteDevice: function () {
+//            console.log('Delete');
+            console.log(this.refs.refName);
+//            var arr = this.state.devices;
+//            console.log(arr);
+//            this.setState({comments: arr})
+        },
+
+        render: function () {
+            return (
+                    <div ref="refSingle" className="DL__single" data-status={this.props.device.status}>
+                        {this.dlSpeed(this.props.device.speed)}
+                        <div ref="refName" className="DL__single__name">{this.props.device.name}</div>
+                        <img className="DL__single__image" src={this.props.device.image} alt=""/>
+                        <div className="DL__single__ip">{this.props.device.ip}</div>
+                        <div className="DL__single__actions">
+                            <button onClick={this.saveName}>
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+            );
+        }
+    });
+
+    ReactDOM.render(<DeviceList/>, document.getElementById('container'));
+
+
+
+
+    ReactDOM.render(<DeviceList/>, document.getElementById('container'));
+
+
+</script>
+</body>
+</html>
